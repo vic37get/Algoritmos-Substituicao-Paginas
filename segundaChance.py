@@ -19,21 +19,35 @@ def TratamentoArquivo(arquivo):
         arquivo[linha] = int(arquivo[linha])
     return arquivo
 
+def ReferenciaMaisAntiga(moldura):
+    return np.argmin(moldura)
+
 def SegundaChance(dados):
     dados = TratamentoArquivo(dados)
     falta_paginas = 0
-    molduras = dados[0]
+    #Quantidade de molduras de páginas na RAM.
+    qntd_molduras = dados[0]
+    #Sequencia de referências feitas às páginas de memória.
     referencias = dados[1:]
-    quadros = []
-    for referencia in referencias:
-        if referencia not in quadros:
+    #Paginas
+    paginas = []
+    #Bit de referencia das páginas
+    bitRPaginas = [float('inf') for i in range(qntd_molduras)]
+    
+    for indice, referencia in enumerate(referencias):
+        if indice %4 == 0:
+            bitRPaginas =  [float('inf') for i in range(qntd_molduras)]
+
+        if referencia not in paginas:
             falta_paginas+=1
-        if len(quadros) == molduras:
-            del quadros[0]
-        quadros.append(referencia)
-        print(quadros)
+
+        if len(paginas) == qntd_molduras:
+            del paginas[ReferenciaMaisAntiga(bitRPaginas)]
+        paginas.append(referencia)
+        bitRPaginas[len(paginas)-1] = indice
+    
     return falta_paginas
 
 dados = OpenFile()
-miss = SegundaChance(dados)
-print(miss)
+falta_pagina = SegundaChance(dados)
+print('SC %d' %(falta_pagina))
