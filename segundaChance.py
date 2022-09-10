@@ -19,7 +19,7 @@ def TratamentoArquivo(arquivo):
     return arquivo
 
 def ReferenciaMaisAntiga(moldura):
-    return np.argmin(moldura)
+    return np.argmax(moldura)
 
 def SegundaChance(dados):
     dados = TratamentoArquivo(dados)
@@ -31,11 +31,11 @@ def SegundaChance(dados):
     #Paginas
     paginas = []
     #Bit de referencia das páginas
-    bitRPaginas = [float('inf') for i in range(qntd_molduras)]
+    bitRPaginas = [0 for i in range(qntd_molduras)]
     
     for indice, referencia in enumerate(referencias):
         if indice %4 == 0:
-            bitRPaginas =  [float('inf') for i in range(qntd_molduras)]
+            bitRPaginas =  [0 for i in range(qntd_molduras)]
 
         if referencia not in paginas:
             falta_paginas+=1
