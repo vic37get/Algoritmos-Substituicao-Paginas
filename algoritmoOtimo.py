@@ -1,20 +1,9 @@
-import sys
-
 import numpy as np
 
 
-def OpenFile():
-    arquivo = sys.stdin
-    try:
-        dados = arquivo.readlines()
-        return dados
-    except:
-        print('Arquivo não encontrado!')
-        exit(0)
-
 def TratamentoArquivo(arquivo):
     for linha in range(len(arquivo)):
-        arquivo[linha] = arquivo[linha].replace('\r\n','')
+        #arquivo[linha] = arquivo[linha].replace('\r\n','')
         arquivo[linha] = int(arquivo[linha])
     return arquivo
 
@@ -58,7 +47,3 @@ def AlgoritmoOtimo(dados):
             print('A referencia {} já estava na moldura!'.format(referencia))
         print('\n')
     return falta_paginas
-
-dados = OpenFile()
-falta_pagina = AlgoritmoOtimo(dados)
-print('OTM %d' %(falta_pagina))

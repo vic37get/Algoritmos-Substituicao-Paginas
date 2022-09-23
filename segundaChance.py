@@ -1,27 +1,39 @@
-import sys
-
 import numpy as np
 
 
-def OpenFile():
-    arquivo = sys.stdin
-    try:
-        dados = arquivo.readlines()
-        return dados
-    except:
-        print('Arquivo não encontrado!')
-        exit(0)
-
 def TratamentoArquivo(arquivo):
     for linha in range(len(arquivo)):
-        arquivo[linha] = arquivo[linha].replace('\r\n','')
+        #arquivo[linha] = arquivo[linha].replace('\r\n','')
         arquivo[linha] = int(arquivo[linha])
     return arquivo
 
 def ReferenciaMaisAntiga(moldura):
-    return np.argmax(moldura)
+    naoReferenciadas = []
+    tempo_min = float('inf')
+    moldura = (sorted(moldura, key = lambda x: x[2]))
+    
+    for pag in range(0,len(moldura)):
+        if moldura[pag][1] == True:
+            moldura[pag][1] = False
+        else:
+            naoReferenciadas.append(moldura[pag])
+
+    for pagina in naoReferenciadas:
+        if pagina[2] < tempo_min:
+            tempo_min = pagina[2]
+            pagAntiga = pagina
+    
+    return pagAntiga
+
+def AtualizaReferencia(moldura, referencias, refAtual):
+    for pag in range(0,len(moldura)):
+        if moldura[pag][0] == referencias[refAtual]:
+            moldura[pag][1] = True
+            #moldura[pag][2] = refAtual
+    return
 
 def SegundaChance(dados):
+    print('--Algoritmo da segunda chance--\n')
     dados = TratamentoArquivo(dados)
     falta_paginas = 0
     #Quantidade de molduras de páginas na RAM.
@@ -29,24 +41,45 @@ def SegundaChance(dados):
     #Sequencia de referências feitas às páginas de memória.
     referencias = dados[1:]
     #Paginas
-    paginas = []
-    #Bit de referencia das páginas
-    bitRPaginas = [0 for i in range(qntd_molduras)]
+    moldura = []
     
     for indice, referencia in enumerate(referencias):
-        if indice %4 == 0:
-            bitRPaginas =  [0 for i in range(qntd_molduras)]
+        print('Referencia: ', referencia)
+        if indice %4 == 0 and indice != 0:
+            print('Quatro referencias á memória!')
+            for pg in range(0, len(moldura)):
+                moldura[pg][1] = False
+            print('Zerando BITR: ', moldura)
+        
+        if len(moldura) < qntd_molduras:
+            adicionados = [mold[0] for mold in moldura]
+            print('Adicionados: ',adicionados)
+            if referencia not in adicionados:
+                falta_paginas+=1
+                print('Referencia nao está na moldura: ', moldura)
+                moldura.append([referencia, True, indice])
+                print('Moldura após inserção da página: ', moldura)
+            else:
+                print('Já está na moldura: ', moldura)
+                AtualizaReferencia(moldura, referencias, indice)
+                print('Apos atualização da moldura: ', moldura)
 
-        if referencia not in paginas:
-            falta_paginas+=1
-
-        if len(paginas) == qntd_molduras:
-            del paginas[ReferenciaMaisAntiga(bitRPaginas)]
-        paginas.append(referencia)
-        bitRPaginas[len(paginas)-1] = indice
-    
+        else:
+            print('Moldura está cheia: ', moldura)
+            adicionados = [mold[0] for mold in moldura]
+            print('Adicionados: ',adicionados)
+            if referencia not in adicionados:
+                falta_paginas+=1
+                ref_antiga = ReferenciaMaisAntiga(moldura)
+                print('Referencia mais antiga: ',ref_antiga)
+                moldura.remove(ref_antiga)
+                print('Apos remover a referencia mais antiga: ',moldura)
+                moldura.append([referencia, True, indice])
+                print('Apos atualização da moldura: ', moldura)
+            else:
+                print('Já está na moldura: ', moldura)
+                AtualizaReferencia(moldura, referencias, indice)
+                print('Apos atualização da moldura: ', moldura)
+        print('Falta Paginas: ',falta_paginas)
+        
     return falta_paginas
-
-dados = OpenFile()
-falta_pagina = SegundaChance(dados)
-print('SC %d' %(falta_pagina))

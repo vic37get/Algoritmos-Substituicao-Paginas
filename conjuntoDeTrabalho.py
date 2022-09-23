@@ -1,16 +1,4 @@
-import sys
-
-import numpy as np
-
-
-def OpenFile():
-    arquivo = sys.stdin
-    try:
-        dados = arquivo.readlines()
-        return dados
-    except:
-        print('Arquivo não encontrado!')
-        exit(0)
+#IMPLEMENTAÇÃO DO CONJUNTO DE TRABALHO
 
 def TratamentoArquivo(arquivo):
     for linha in range(len(arquivo)):
@@ -19,58 +7,77 @@ def TratamentoArquivo(arquivo):
     return arquivo
 
 
+def PagForaConjTrabalho(moldura, limiar, tempoVirtualAtual):
+    tempo_min = float('inf')
+    listaPagMaisAntiga = []
+    for pag in range(0, len(moldura)):
+        if moldura[pag][1] == True:
+            moldura[pag][2] = tempoVirtualAtual
+        else:
+            idadePag = tempoVirtualAtual - moldura[pag][2]
+            if idadePag > limiar:
+                return moldura[pag]
+            else:
+                listaPagMaisAntiga.append(moldura[pag])
+    for pagina in range(0, len(listaPagMaisAntiga)):
+        if listaPagMaisAntiga[pagina][2] < tempo_min:
+            tempo_min = listaPagMaisAntiga[pagina][2]
+            pagAntiga = listaPagMaisAntiga[pagina]
+
+    return pagAntiga
+
+def AtualizaReferencia(moldura, referencias, refAtual):
+    for pag in range(0,len(moldura)):
+        if moldura[pag][0] == referencias[refAtual]:
+            moldura[pag][1] = True
+            moldura[pag][2] = refAtual
+    return
+
+
 def ConjuntoDeTrabalho(dados):
     dados = TratamentoArquivo(dados)
     qntd_molduras = dados[0]
     limiar = (qntd_molduras/2)+1
     referencias = dados[1:]
-    falta_paginas = 0
-    moldura = []#[PROCESSO, BIT R, ULTIMO USO]
+    faltasPagina = 0
+    moldura = []    #[PROCESSO, BIT R, ULTIMO USO]
 
-    for indice, processo in enumerate(referencias):
-        if (indice%4 == 0 and indice != 0): #se tiver sido 4 referencias a memória entao coloca o bit R de cada processo da moldura para False
-            for k in moldura:
-                k[1] = False
-        if len(moldura) < qntd_molduras :#se a moldura tiver com vaga so add o processo
-            try:#verifica se o processo já foi adicionado, se tiver sido, nao faz nada
-                indiceNaMoldura = list(np.array(moldura)[:,0]).index(processo)
-                print(processo)
-                print(moldura)
-                print(indiceNaMoldura)
-                moldura[indiceNaMoldura][1] = True
-                moldura[indiceNaMoldura][2] = indice+1
-            except (ValueError, IndexError):
-                moldura.append([processo,True,indice+1])#salva o processo, o bit de referencia e o tempo virtual atual
-                falta_paginas+=1
+    for ref in range(0, len(referencias)):
+        print('REFERENCIA: ',referencias[ref])
+        print('MOLDURA: ', moldura)
+        if ref % 4 == 0 and ref != 0:
+            for indice in range(0, len(moldura)):
+                moldura[indice][1] = False
+            print('ZERANDO BITR: ', moldura)
+
+        if len(moldura) < qntd_molduras:
+            adicionados = [mold[0] for mold in moldura]
+            print('ADICIONADOS NA MOLDURA: ',adicionados)
+            if referencias[ref] not in adicionados:
+                moldura.append([referencias[ref], True, ref])
+                faltasPagina +=1
+                print('MOLDURA APOS ADIÇÃO: ', moldura)
+            else:
+                print('JA ESTÁ NA MOLDURA: ', moldura)
+                AtualizaReferencia(moldura, referencias, ref)
+                print('APOS ATUALIZAÇÃO DA MOLDURA: ', moldura)
         else:
-            try:#ve se o processo está na com o status de bit R True alem de atualiza o tempo virtual atual do processo
-                indiceNaMoldura = list(np.array(moldura)[:,0]).index(processo) #pega o indice do processo na moldura
-                moldura[indiceNaMoldura][1] = True
-                moldura[indiceNaMoldura][2] = indice+1
-            except ValueError:#se nao tiver na moldura, entao será escolhido algum com o BIT R = 0
-                indicesMolduraAux = []#irá guardar as paginas da moldura que devem ser deletadas
-                for i in range(len(moldura)):
-                    idade = moldura[i][2]
-                    if (moldura[i][1] == False) and (idade > limiar):
-                        indicesMolduraAux.append(moldura[i][0])
-                    elif (moldura[i][1] == False) and (idade <= limiar):
-                        moldura[i][0] = processo
-                        moldura[i][1] = True
-                        moldura[i][2] = indice + 1
-                        falta_paginas+=1
-                for i in indicesMolduraAux:#Exclui as paginas que possui a idade maior que o limiar
-                    indiceNaMoldura = list(np.array(moldura)[:,0]).index(i)
-                    del(moldura[indiceNaMoldura])#deleta o processo da moldura
+            print('TAMANHO DA MOLDURA TA NO MAXIMO: ', moldura)
+            adicionados = [mold[0] for mold in moldura]
+            print('ADICIONADOS NA MOLDURA: ',adicionados)
+            if referencias[ref] not in adicionados:
+                fora_conj = PagForaConjTrabalho(moldura, limiar, ref)
+                print('MOLDURA FORA DO CONJ DE TRABALHO: ', fora_conj)
+                moldura.remove(fora_conj)
+                print('REMOVENDO ESSA MOLDURA: ', moldura)
+                moldura.append([referencias[ref], True, ref])
+                print('ADICIONANDO A MOLDURA NOVA: ', moldura)
+                faltasPagina+=1
+            else:
+                print('JA ESTÁ NA MOLDURA: ', moldura)
+                AtualizaReferencia(moldura, referencias, ref)
+                print('APOS ATUALIZAÇÃO DA MOLDURA: ', moldura)
 
-                try:#verifica se o processo entrou na moldura, em alguma das ocasiÕes acima
-                    list(np.array(moldura)[:,0]).index(processo)
-                except:#se o processo não está na moldura depois disso td, entao adiciona
-                    moldura.append([processo,True,indice+1])#salva o processo, o bit de referencia e o tempo virtual atual
-                    falta_paginas+=1
-    return falta_paginas
+    return faltasPagina
 
 
-
-dados = OpenFile()
-falta_pagina = ConjuntoDeTrabalho(dados)
-print('CT %d' %(falta_pagina))
