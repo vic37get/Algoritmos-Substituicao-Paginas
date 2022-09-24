@@ -7,7 +7,7 @@ def TratamentoArquivo(arquivo):
         arquivo[linha] = int(arquivo[linha])
     return arquivo
 
-def ReferenciaMaisAntiga(moldura):
+def ReferenciaMaisAntiga(moldura, refAtual):
     naoReferenciadas = []
     tempo_min = float('inf')
     moldura = (sorted(moldura, key = lambda x: x[2]))
@@ -15,6 +15,7 @@ def ReferenciaMaisAntiga(moldura):
     for pag in range(0,len(moldura)):
         if moldura[pag][1] == True:
             moldura[pag][1] = False
+            moldura[pag][2] = refAtual 
         else:
             naoReferenciadas.append(moldura[pag])
 
@@ -29,7 +30,6 @@ def AtualizaReferencia(moldura, referencias, refAtual):
     for pag in range(0,len(moldura)):
         if moldura[pag][0] == referencias[refAtual]:
             moldura[pag][1] = True
-            #moldura[pag][2] = refAtual
     return
 
 def SegundaChance(dados):
@@ -70,16 +70,16 @@ def SegundaChance(dados):
             print('Adicionados: ',adicionados)
             if referencia not in adicionados:
                 falta_paginas+=1
-                ref_antiga = ReferenciaMaisAntiga(moldura)
-                print('Referencia mais antiga: ',ref_antiga)
+                ref_antiga = ReferenciaMaisAntiga(moldura, indice)
+                print('Referencia mais antiga: ', ref_antiga)
                 moldura.remove(ref_antiga)
-                print('Apos remover a referencia mais antiga: ',moldura)
+                print('Apos remover a referencia mais antiga: ', moldura)
                 moldura.append([referencia, True, indice])
                 print('Apos atualização da moldura: ', moldura)
             else:
                 print('Já está na moldura: ', moldura)
                 AtualizaReferencia(moldura, referencias, indice)
                 print('Apos atualização da moldura: ', moldura)
-        print('Falta Paginas: ',falta_paginas)
+        print('Falta Paginas: ', falta_paginas)
         
     return falta_paginas
