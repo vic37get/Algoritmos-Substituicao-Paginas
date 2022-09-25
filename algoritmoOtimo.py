@@ -21,28 +21,33 @@ def PaginaComMaiorRotulo(indicepag, paginas, referencias):
     return pagMaisDemorada
 
 def AlgoritmoOtimo(dados):
+    print('\n---Algoritmo Ótimo---\n')
     dados = TratamentoArquivo(dados)
+    #Faltas de páginas.
     falta_paginas = 0
+    #Quantidade de molduras
     qntd_molduras = dados[0]
+    #Sequencia de referências feitas às páginas de memória.
     referencias = dados[1:]
-    paginas = []
+    #Moldura de páginas
+    moldura = []    #[PROCESSO, BIT R, ULTIMO USO]
 
     for indice, referencia in enumerate(referencias):
         print('A referencia {} chegou'.format(referencia))
-        if referencia not in paginas:
-            print('A referencia {} não está na moldura: {}'.format(referencia, paginas))
+        if referencia not in moldura:
+            print('A referencia {} não está na moldura: {}'.format(referencia, moldura))
             falta_paginas+=1
             print('Falta de páginas: {}'.format(falta_paginas))
-            if len(paginas) == qntd_molduras:
+            if len(moldura) == qntd_molduras:
                 print('O número de páginas é igual a quantidade de molduras!!')
-                print('Moldura: {}'.format(paginas))
-                pagMaiorRotulo = PaginaComMaiorRotulo(indice, paginas, referencias)
+                print('Moldura: {}'.format(moldura))
+                pagMaiorRotulo = PaginaComMaiorRotulo(indice, moldura, referencias)
                 print('A pagina com maior rótulo é: {}'.format(pagMaiorRotulo))
-                paginas.remove(pagMaiorRotulo)
-                print('A pagina com maior rotulo foi removida! Moldura: {}'.format(paginas))
-            paginas.append(referencia)
+                moldura.remove(pagMaiorRotulo)
+                print('A pagina com maior rotulo foi removida! Moldura: {}'.format(moldura))
+            moldura.append(referencia)
             print('A referencia {} foi adicionada!'.format(referencia))
-            print('Moldura após adicionar a referencia {}: {}'.format(referencia,paginas))
+            print('Moldura após adicionar a referencia {}: {}'.format(referencia,moldura))
         else:
             print('A referencia {} já estava na moldura!'.format(referencia))
         print('\n')

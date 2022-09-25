@@ -35,11 +35,17 @@ def AtualizaReferencia(moldura, referencias, refAtual):
 
 
 def ConjuntoDeTrabalho(dados):
+    print('\n--Algoritmo Conjunto de Trabalho--\n')
     dados = TratamentoArquivo(dados)
+    #Quantidade de molduras de páginas na RAM.
     qntd_molduras = dados[0]
+    #Limiar
     limiar = (qntd_molduras/2)+1
+    #Sequencia de referências feitas às páginas de memória.
     referencias = dados[1:]
+    #Faltas de páginas.
     faltasPagina = 0
+    #Moldura de páginas
     moldura = []    #[PROCESSO, BIT R, ULTIMO USO]
 
     for ref in range(0, len(referencias)):

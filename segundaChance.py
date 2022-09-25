@@ -33,15 +33,15 @@ def AtualizaReferencia(moldura, referencias, refAtual):
     return
 
 def SegundaChance(dados):
-    print('--Algoritmo da segunda chance--\n')
+    print('\n--Algoritmo Segunda chance--\n')
     dados = TratamentoArquivo(dados)
     falta_paginas = 0
     #Quantidade de molduras de páginas na RAM.
     qntd_molduras = dados[0]
     #Sequencia de referências feitas às páginas de memória.
     referencias = dados[1:]
-    #Paginas
-    moldura = []
+    #Moldura de páginas
+    moldura = []    #[PROCESSO, BIT R, ULTIMO USO]
     
     for indice, referencia in enumerate(referencias):
         print('Referencia: ', referencia)
