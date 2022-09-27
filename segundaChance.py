@@ -1,8 +1,13 @@
+#IMPLEMENTAÇÃO DO ALGORITMO DE SEGUNDA CHANCE
+import copy
+
 
 def TratamentoArquivo(arquivo):
-    for linha in range(len(arquivo)):
-        arquivo[linha] = int(arquivo[linha])
-    return arquivo
+    dados = copy.deepcopy(arquivo)
+    for linha in range(len(dados)):
+        dados[linha] = dados[linha].replace('\r\n','')
+        dados[linha] = int(dados[linha])
+    return dados
 
 #Retorna a referencia mais antiga da moldura
 def ReferenciaMaisAntiga(moldura):
