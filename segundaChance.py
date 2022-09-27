@@ -37,7 +37,7 @@ def SegundaChance(dados):
     #Sequencia de referências feitas às páginas de memória.
     referencias = dados[1:]
     #Moldura de páginas
-    moldura = []    #[PROCESSO, BIT R, ULTIMO USO]
+    moldura = []    #[PAGINA, BIT R, ULTIMO USO]
     
     for indice, referencia in enumerate(referencias):
         print('--- Referência: {} ---\n'.format(referencia))
