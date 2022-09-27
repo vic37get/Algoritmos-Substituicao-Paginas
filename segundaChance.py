@@ -1,31 +1,22 @@
-import numpy as np
-
 
 def TratamentoArquivo(arquivo):
     for linha in range(len(arquivo)):
-        #arquivo[linha] = arquivo[linha].replace('\r\n','')
         arquivo[linha] = int(arquivo[linha])
     return arquivo
 
-def ReferenciaMaisAntiga(moldura, refAtual):
-    naoReferenciadas = []
-    tempo_min = float('inf')
-    moldura = (sorted(moldura, key = lambda x: x[2]))
-    
+#Retorna a referencia mais antiga da moldura
+def ReferenciaMaisAntiga(moldura):
     for pag in range(0,len(moldura)):
         if moldura[pag][1] == True:
+            posicoes = [mold[2] for mold in moldura]
+            proximo = max(posicoes)
             moldura[pag][1] = False
-            moldura[pag][2] = refAtual 
+            moldura[pag][2] = proximo+1
         else:
-            naoReferenciadas.append(moldura[pag])
+            return moldura[pag]
+    return moldura[0]
 
-    for pagina in naoReferenciadas:
-        if pagina[2] < tempo_min:
-            tempo_min = pagina[2]
-            pagAntiga = pagina
-    
-    return pagAntiga
-
+#Atualiza o BITR da página para True
 def AtualizaReferencia(moldura, referencias, refAtual):
     for pag in range(0,len(moldura)):
         if moldura[pag][0] == referencias[refAtual]:
@@ -44,42 +35,58 @@ def SegundaChance(dados):
     moldura = []    #[PROCESSO, BIT R, ULTIMO USO]
     
     for indice, referencia in enumerate(referencias):
-        print('Referencia: ', referencia)
+        print('--- Referência: {} ---\n'.format(referencia))
+        #Zerar os BITR das páginas a cada 4 referencias a memória
         if indice %4 == 0 and indice != 0:
-            print('Quatro referencias á memória!')
+            print('--Quatro referências á memória!--\n')
+            #Zerando BITR
             for pg in range(0, len(moldura)):
                 moldura[pg][1] = False
-            print('Zerando BITR: ', moldura)
-        
+            print('Zerando BITR... {}\n'.format(moldura))
+        #Se a moldura ainda tem espaço.
         if len(moldura) < qntd_molduras:
+            #Já adicionados na moldura.
             adicionados = [mold[0] for mold in moldura]
-            print('Adicionados: ',adicionados)
+            print('Moldura: ', adicionados)
+            #Se a referencia não está na moldura.
             if referencia not in adicionados:
                 falta_paginas+=1
-                print('Referencia nao está na moldura: ', moldura)
+                print('Essa referência não está na moldura: ', moldura)
+                #Referencia adicionada na moldura.
                 moldura.append([referencia, True, indice])
-                print('Moldura após inserção da página: ', moldura)
+                print('Moldura após a inserção da página: ', moldura)
             else:
-                print('Já está na moldura: ', moldura)
+                print('Essa referência já está na moldura: ', moldura)
+                #Atualização do BITR da página para True
                 AtualizaReferencia(moldura, referencias, indice)
                 print('Apos atualização da moldura: ', moldura)
 
+        #Se a moldura estiver cheia
         else:
-            print('Moldura está cheia: ', moldura)
             adicionados = [mold[0] for mold in moldura]
-            print('Adicionados: ',adicionados)
+            #Se a referencia não estiver na moldura.
             if referencia not in adicionados:
+                print('Moldura está cheia: ', moldura)
                 falta_paginas+=1
-                ref_antiga = ReferenciaMaisAntiga(moldura, indice)
-                print('Referencia mais antiga: ', ref_antiga)
+                #Retorna a referencia mais antiga com BITR = False
+                ref_antiga = ReferenciaMaisAntiga(moldura)
+                #Reordenando a moldura pela posição na fila.
+                moldura.sort(key = lambda moldura: moldura[2])
+                print('Referência mais antiga: ', ref_antiga)
+                #Removendo a referencia mais antiga.
                 moldura.remove(ref_antiga)
-                print('Apos remover a referencia mais antiga: ', moldura)
-                moldura.append([referencia, True, indice])
-                print('Apos atualização da moldura: ', moldura)
+                print('Após remover a referência mais antiga: ', moldura)
+                posicoes = [mold[2] for mold in moldura]
+                proximo = max(posicoes)
+                #Adicionando a nova referência na ultima posição da fila.
+                moldura.append([referencia, True, proximo+1])
+                print('Moldura após a inserção da página: ', moldura)
             else:
-                print('Já está na moldura: ', moldura)
+                print('Essa referência já está na moldura: ', moldura)
+                #Atualização do BITR da página para True
                 AtualizaReferencia(moldura, referencias, indice)
-                print('Apos atualização da moldura: ', moldura)
-        print('Falta Paginas: ', falta_paginas)
+                print('Após a atualização da moldura: ', moldura)
+        print('\nFaltas de páginas: ', falta_paginas)
+        print('\n********************************************************\n')
         
     return falta_paginas
