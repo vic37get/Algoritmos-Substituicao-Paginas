@@ -1,7 +1,7 @@
 # Implementação de Algoritmos de Substituição de Páginas :page_facing_up:
 
 ## Execução:
-`python3 [nomeDoArquivo].py < entrada.txt`
+`python3 main.py < entrada.txt`
 
 ## Funcionamento:
 O programa lê da entrada padrão um conjunto de números inteiros onde o primeiro número representa a quantidade de molduras de página disponíveis na RAM e os demais representam a sequência de referências às páginas, sempre um número por linha.
