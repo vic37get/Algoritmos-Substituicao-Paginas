@@ -34,6 +34,38 @@ def PaginaComMaiorRotulo(indicepag, paginas, referencias):
     return pagMaisDemorada
 
 def AlgoritmoOtimo(dados):
+    dados = TratamentoArquivo(dados)
+    #Faltas de páginas.
+    falta_paginas = 0
+    #Quantidade de molduras
+    qntd_molduras = dados[0]
+    #Sequencia de referências feitas às páginas de memória.
+    referencias = dados[1:]
+    #Moldura de páginas
+    moldura = []    #[PAGINA]
+
+    for indice, referencia in enumerate(referencias):
+        #Se a referencia não está na moldura.
+        if referencia not in moldura:
+            falta_paginas+=1
+            #Se a moldura estiver cheia.
+            if len(moldura) == qntd_molduras:
+                #Obtém a página que vai demorar mais para ser referenciada novamente.
+                pagMaiorRotulo = PaginaComMaiorRotulo(indice, moldura, referencias)
+                #Remove a página
+                moldura.remove(pagMaiorRotulo)
+            #Adiciona a nova referência de página na moldura
+            moldura.append(referencia)
+        #Se a página já estiver na moldura
+        else:
+            continue
+
+    return falta_paginas
+
+##################
+#Passo a passo
+
+def AlgoritmoOtimoPassoApasso(dados):
     print('\n---Algoritmo Ótimo---\n')
     dados = TratamentoArquivo(dados)
     #Faltas de páginas.

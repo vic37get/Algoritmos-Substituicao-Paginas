@@ -34,6 +34,62 @@ def AtualizaReferencia(moldura, referencias, refAtual):
     return
 
 def ConjuntoDeTrabalho(dados):
+    dados = TratamentoArquivo(dados)
+    #Quantidade de molduras de páginas na RAM.
+    qntd_molduras = dados[0]
+    #Limiar
+    limiar = (qntd_molduras/2)+1
+    #Sequencia de referências feitas às páginas de memória.
+    referencias = dados[1:]
+    #Faltas de páginas.
+    faltasPagina = 0
+    #Moldura de páginas
+    moldura = []    #[PAGINA, BIT R, ULTIMO USO]
+    for ref in range(0, len(referencias)):
+        #Zerar os BITR das páginas a cada 4 referencias a memória
+        if ref % 4 == 0 and ref != 0:
+            #Zerando BITR
+            for indice in range(0, len(moldura)):
+                moldura[indice][1] = False
+        #Se a moldura ainda tem espaço.
+        if len(moldura) < qntd_molduras:
+            #Já adicionados na moldura.
+            adicionados = [mold[0] for mold in moldura]
+            #Se a pagina não está na moldura.
+            if referencias[ref] not in adicionados:
+                #Referencia adicionada na moldura.
+                moldura.append([referencias[ref], True, ref])
+                faltasPagina +=1
+            #Se a pagina já está na moldura
+            else:
+                #Atualização do BITR da página para True e do instante do ultimo uso.
+                AtualizaReferencia(moldura, referencias, ref)
+                #Ordena a moldura pelo instante do ultimo uso das páginas.
+                OrdenaMoldura(moldura)
+        else:
+            adicionados = [mold[0] for mold in moldura]
+            #Se a pagina não está na moldura.
+            if referencias[ref] not in adicionados:
+                #Busca a página que está fora do conjunto de trabalho.
+                fora_conj = PagForaConjTrabalho(moldura, limiar, ref)
+                #Remove a página.
+                moldura.remove(fora_conj)
+                #Adiciona a nova página.
+                moldura.append([referencias[ref], True, ref])
+                faltasPagina+=1
+            #Se a página já estiver na moldura.
+            else:
+                #Atualização do BITR da página para True e do instante do ultimo uso.
+                AtualizaReferencia(moldura, referencias, ref)
+                #Ordena a moldura pelo instante do ultimo uso das páginas.
+                OrdenaMoldura(moldura)
+
+    return faltasPagina
+
+############
+#Passo a passo
+
+def ConjuntoDeTrabalhoPassoApasso(dados):
     print('\n--Algoritmo Conjunto de Trabalho--\n')
     dados = TratamentoArquivo(dados)
     #Quantidade de molduras de páginas na RAM.

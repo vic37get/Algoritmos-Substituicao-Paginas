@@ -29,6 +29,60 @@ def AtualizaReferencia(moldura, referencias, refAtual):
     return
 
 def SegundaChance(dados):
+    dados = TratamentoArquivo(dados)
+    falta_paginas = 0
+    #Quantidade de molduras de páginas na RAM.
+    qntd_molduras = dados[0]
+    #Sequencia de referências feitas às páginas de memória.
+    referencias = dados[1:]
+    #Moldura de páginas
+    moldura = []    #[PAGINA, BIT R, ULTIMO USO]
+    
+    for indice, referencia in enumerate(referencias):
+        #Zerar os BITR das páginas a cada 4 referencias a memória
+        if indice %4 == 0 and indice != 0:
+            #Zerando BITR
+            for pg in range(0, len(moldura)):
+                moldura[pg][1] = False
+        #Se a moldura ainda tem espaço.
+        if len(moldura) < qntd_molduras:
+            #Já adicionados na moldura.
+            adicionados = [mold[0] for mold in moldura]
+            #Se a referencia não está na moldura.
+            if referencia not in adicionados:
+                falta_paginas+=1
+                #Referencia adicionada na moldura.
+                moldura.append([referencia, True, indice])
+            else:
+                #Atualização do BITR da página para True
+                AtualizaReferencia(moldura, referencias, indice)
+
+        #Se a moldura estiver cheia
+        else:
+            adicionados = [mold[0] for mold in moldura]
+            #Se a referencia não estiver na moldura.
+            if referencia not in adicionados:
+                falta_paginas+=1
+                #Retorna a referencia mais antiga com BITR = False
+                ref_antiga = ReferenciaMaisAntiga(moldura)
+                #Reordenando a moldura pela posição na fila.
+                moldura.sort(key = lambda moldura: moldura[2])
+                #Removendo a referencia mais antiga.
+                moldura.remove(ref_antiga)
+                posicoes = [mold[2] for mold in moldura]
+                proximo = max(posicoes)
+                #Adicionando a nova referência na ultima posição da fila.
+                moldura.append([referencia, True, proximo+1])
+            else:
+                #Atualização do BITR da página para True
+                AtualizaReferencia(moldura, referencias, indice)
+        
+    return falta_paginas
+
+################
+#Passo a passo
+
+def SegundaChancePassoApasso(dados):
     print('\n--Algoritmo Segunda chance--\n')
     dados = TratamentoArquivo(dados)
     falta_paginas = 0
